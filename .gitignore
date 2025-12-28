@@ -1,0 +1,15 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Data
+data/raw/
+warehouse/*.duckdb
+
+# OS
+.DS_Store
+
