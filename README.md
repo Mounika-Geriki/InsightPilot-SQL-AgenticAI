@@ -131,23 +131,6 @@ The dataset is well-suited for:
 - Operational KPIs
 - Anomaly detection
 
----
-
-## 🔮 Upcoming Work
-- Build Silver layer (data cleaning & quality checks)
-- Build Gold layer (fact tables & KPIs)
-- Create Streamlit dashboards (Executive, Deep Dive, Alerts)
-- Implement agentic AI layer for automated insights
-- Add evaluation and validation framework
-
----
-
-## 🧠 Interview Talking Points
-You can confidently say:
-
-> “I designed and implemented a SQL-first analytics platform using a medallion architecture, validated data ingestion at the Bronze layer, and structured the system to support dashboards and AI-driven insights.”
-
----
 
 ## 📌 Note
 This project focuses on **data modeling, data quality, and analytics correctness first**.
