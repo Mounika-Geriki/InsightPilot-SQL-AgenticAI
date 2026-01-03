@@ -110,3 +110,15 @@ FROM fact_orders
 GROUP BY 1,2
 ORDER BY 1,2;
 
+-- 5) Daily SLA KPIs (delivered-only)
+CREATE OR REPLACE VIEW daily_sla_kpis AS
+SELECT
+  order_date,
+  COUNT(DISTINCT order_id) AS delivered_orders,
+  AVG(on_time_flag) AS on_time_rate_delivered,
+  AVG(delivery_days) AS avg_delivery_days
+FROM fact_orders
+WHERE order_delivered_customer_ts IS NOT NULL
+GROUP BY 1
+ORDER BY 1;
+
