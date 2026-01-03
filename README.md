@@ -128,7 +128,16 @@ The dataset is well-suited for:
 - Funnel analysis
 - Operational KPIs
 - Anomaly detection
+## 📸 Dashboard Preview
 
+**Executive Overview**
+![Executive Overview](dashboards/assets/executive_overview_1.png)
+![Executive Overview](dashboards/assets/executive_overview_2.png)
+**Deep Dive**
+![Deep Dive](dashboards/assets/deep_dive_1.png)
+![Deep Dive](dashboards/assets/deep_dive_2.png)
+![Deep Dive](dashboards/assets/deep_dive_3.png)
+![Deep Dive](dashboards/assets/deep_dive_4.png)
 
 ## 📌 Note
 This project focuses on **data modeling, data quality, and analytics correctness first**.
