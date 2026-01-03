@@ -5,6 +5,7 @@ DB_PATH = "warehouse/insightpilot.duckdb"
 SQL_FILES = [
     "sql/silver/01_silver_views.sql",
     "sql/gold/01_gold_facts_kpis.sql",
+    "sql/gold/02_gold_anomalies.sql",
 ]
 
 con = duckdb.connect(DB_PATH)
