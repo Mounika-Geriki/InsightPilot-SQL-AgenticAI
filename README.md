@@ -138,7 +138,13 @@ The dataset is well-suited for:
 ![Deep Dive](dashboards/assets/deep_dive_2.png)
 ![Deep Dive](dashboards/assets/deep_dive_3.png)
 ![Deep Dive](dashboards/assets/deep_dive_4.png)
+## 🚨 Alerts & Anomalies
 
+Detects daily revenue/order spikes using a 14-day rolling baseline + z-score, and surfaces category-level drivers.
+
+![Daily Alerts](dashboards/assets/alerts_anomalies_1.png)
+![Category Drivers](dashboards/assets/alerts_anomalies_2.png)
+![Category Drivers](dashboards/assets/alerts_anomalies_3.png)
 ## 📌 Note
 This project focuses on **data modeling, data quality, and analytics correctness first**.
 The architecture is designed to be **portable to Spark, Airflow, and cloud warehouses**

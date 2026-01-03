@@ -41,7 +41,20 @@ st.dataframe(
 
 st.divider()
 st.subheader("📈 Trend + Anomaly Markers")
-st.line_chart(daily_f.set_index("order_date")[["total_revenue", "total_orders"]])
+
+plot_df = daily_f[["order_date", "total_revenue", "total_orders", "revenue_anomaly_flag", "orders_anomaly_flag"]].copy()
+
+# Create marker series: keep value only on anomaly days, else NaN
+plot_df["revenue_anomaly_points"] = plot_df.apply(
+    lambda r: r["total_revenue"] if r["revenue_anomaly_flag"] == 1 else None, axis=1
+)
+plot_df["orders_anomaly_points"] = plot_df.apply(
+    lambda r: r["total_orders"] if r["orders_anomaly_flag"] == 1 else None, axis=1
+)
+
+st.line_chart(plot_df.set_index("order_date")[["total_revenue", "total_orders"]])
+
+st.caption("Anomaly days listed below (z-score ≥ 3). Use the table to see exact dates and scores.")
 
 st.divider()
 st.subheader("🏷️ Category Anomalies (Top Drivers)")
@@ -64,22 +77,32 @@ st.subheader("🧠 Auto Insight Summary (Rule-based)")
 if len(alerts) == 0:
     st.info("No major anomalies detected in the selected range.")
 else:
-    top = alerts.iloc[0]
-    date_str = str(top["order_date"].date())
-    rev_z = top["revenue_zscore"]
-    ord_z = top["orders_zscore"]
+    # Pick strongest revenue anomaly if exists, else strongest orders anomaly
+    alerts2 = alerts.copy()
+    alerts2["rev_abs"] = alerts2["revenue_zscore"].abs()
+    alerts2["ord_abs"] = alerts2["orders_zscore"].abs()
+
+    pick = alerts2.sort_values(["rev_abs", "ord_abs"], ascending=False).iloc[0]
+    date_str = str(pd.to_datetime(pick["order_date"]).date())
 
     bullets = []
-    if pd.notna(rev_z) and abs(rev_z) >= 3:
-        direction = "spike" if rev_z > 0 else "drop"
-        bullets.append(f"Revenue anomaly detected on **{date_str}** (z-score: {rev_z:.2f}) — significant {direction} vs 14-day baseline.")
-    if pd.notna(ord_z) and abs(ord_z) >= 3:
-        direction = "spike" if ord_z > 0 else "drop"
-        bullets.append(f"Order volume anomaly detected on **{date_str}** (z-score: {ord_z:.2f}) — significant {direction} vs 14-day baseline.")
+    if pd.notna(pick["revenue_zscore"]):
+        direction = "spike" if pick["revenue_zscore"] > 0 else "drop"
+        bullets.append(
+            f"Revenue {direction} on **{date_str}** (z={pick['revenue_zscore']:.2f}) — ${pick['total_revenue']:,.2f} vs rolling baseline."
+        )
+
+    if pd.notna(pick["orders_zscore"]):
+        direction = "spike" if pick["orders_zscore"] > 0 else "drop"
+        bullets.append(
+            f"Orders {direction} on **{date_str}** (z={pick['orders_zscore']:.2f}) — {int(pick['total_orders'])} orders."
+        )
 
     if len(cat) > 0:
         top_cat = cat.iloc[0]
-        bullets.append(f"Top category driver: **{top_cat['category']}** (category revenue z-score: {top_cat['category_revenue_zscore']:.2f}).")
+        bullets.append(
+            f"Top category driver: **{top_cat['category']}** (z={top_cat['category_revenue_zscore']:.2f})."
+        )
 
     for b in bullets:
         st.write(f"- {b}")
