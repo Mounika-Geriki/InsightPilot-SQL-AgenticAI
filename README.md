@@ -73,8 +73,6 @@ This process is slow, error-prone, and difficult to scale.
 
 ## 📂 Project Structure
 
-## 📂 Project Structure
-
 ```text
 insightpilot/
 ├── data/
