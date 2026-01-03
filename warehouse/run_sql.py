@@ -4,6 +4,7 @@ from pathlib import Path
 DB_PATH = "warehouse/insightpilot.duckdb"
 SQL_FILES = [
     "sql/silver/01_silver_views.sql",
+    "sql/gold/01_gold_facts_kpis.sql",
 ]
 
 con = duckdb.connect(DB_PATH)
@@ -14,5 +15,5 @@ for f in SQL_FILES:
     print(f"✅ Executed: {f}")
 
 con.close()
-print("🎉 Silver views created.")
+print("🎉 Silver + Gold views created.")
 
