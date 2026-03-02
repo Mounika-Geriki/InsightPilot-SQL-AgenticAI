@@ -1,15 +1,14 @@
-# Python
+# Virtual environments
+ip/
 venv/
 __pycache__/
-*.pyc
 
-# Environment
+# Logs
+agent_logs.json
+*.log
+
+# Environment files
 .env
 
-# Data
-data/raw/
-warehouse/*.duckdb
-
-# OS
+# Mac
 .DS_Store
-
