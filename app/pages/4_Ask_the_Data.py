@@ -10,6 +10,10 @@ import streamlit as st
 import pandas as pd
 
 from agents.sql_agent import run_agent
+from agents.narrative_llm import (
+    rewrite_narrative_with_llm,
+    deterministic_narrative,
+)
 
 st.set_page_config(page_title="Ask the Data", layout="wide")
 
@@ -19,25 +23,42 @@ st.caption("AI-powered analytics copilot for InsightPilot")
 st.divider()
 
 # -----------------------------
+# Session state init
+# -----------------------------
+if "question" not in st.session_state:
+    st.session_state.question = ""
+
+if "output" not in st.session_state:
+    st.session_state.output = None
+
+# -----------------------------
 # Input
 # -----------------------------
-
 question = st.text_input(
     "Ask a business question",
+    value=st.session_state.question,
     placeholder="Why did revenue spike on 2017-11-24?"
 )
 
 run_button = st.button("Run Analysis")
 
 # -----------------------------
-# Agent Execution
+# Run agent and persist output
 # -----------------------------
+if run_button:
+    if question:
+        with st.spinner("Analyzing data..."):
+            st.session_state.question = question
+            st.session_state.output = run_agent(question)
+    else:
+        st.warning("Please enter a question.")
 
-if run_button and question:
+output = st.session_state.output
 
-    with st.spinner("Analyzing data..."):
-        output = run_agent(question)
-
+# -----------------------------
+# Render persisted output
+# -----------------------------
+if output:
     st.divider()
 
     # -----------------------------
@@ -45,7 +66,6 @@ if run_button and question:
     # -----------------------------
     if output.plan:
         st.subheader("🧩 Agent Plan")
-
         for step in output.plan:
             with st.expander(f"Step: {step.name}"):
                 st.write(step.description)
@@ -56,11 +76,8 @@ if run_button and question:
     # -----------------------------
     if output.results:
         st.subheader("📊 Results")
-
         for name, df in output.results.items():
-
             st.markdown(f"**{name}**")
-
             if isinstance(df, pd.DataFrame) and not df.empty:
                 st.dataframe(df, width="stretch")
             else:
@@ -85,7 +102,6 @@ if run_button and question:
     # -----------------------------
     if output.followups:
         st.subheader("➡️ Suggested Follow-ups")
-
         for suggestion in output.followups:
             st.write(f"- {suggestion}")
 
@@ -98,30 +114,37 @@ if run_button and question:
         "category_kpis, category_anomalies, state_kpis). "
         "Read-only access enforced via SQL guardrails."
     )
+
     # -----------------------------
-    # Narrative (Deterministic)
+    # Deterministic Narrative
     # -----------------------------
     if output.narrative:
         st.subheader("🧠 Deterministic Insight (Source of Truth)")
-
-        st.markdown(f"**What happened:** {output.narrative.get('what_happened','')}")
-        st.markdown(f"**Why it happened:** {output.narrative.get('why_it_happened','')}")
-        st.markdown(f"**So what:** {output.narrative.get('so_what','')}")
-        st.markdown(f"**Next steps:** {output.narrative.get('next_steps','')}")
+        st.markdown(f"**What happened:** {output.narrative.get('what_happened', '')}")
+        st.markdown(f"**Why it happened:** {output.narrative.get('why_it_happened', '')}")
+        st.markdown(f"**So what:** {output.narrative.get('so_what', '')}")
+        st.markdown(f"**Next steps:** {output.narrative.get('next_steps', '')}")
 
         if output.narrative.get("top_drivers"):
             st.markdown("**Top drivers:**")
             for d in output.narrative["top_drivers"]:
                 st.write(f"- {d}")
 
-    # -----------------------------
-    # Optional LLM rewrite
-    # -----------------------------
-    use_llm = st.toggle("✨ Rewrite as Executive Narrative (Optional LLM)", value=False)
+        # -----------------------------
+        # Optional LLM rewrite
+        # -----------------------------
+        use_llm = st.toggle(
+            "✨ Executive Narrative (Rewrite Layer)",
+            value=False,
+            key="use_llm_toggle"
+        )
 
-    if use_llm:
-        st.subheader("🪄 Executive Narrative (Rewrite Layer)")
-        st.info(output.executive_narrative or "LLM is off or not configured. Showing deterministic narrative instead.")
+        if use_llm:
+            st.subheader("🪄 Executive Narrative (AI Rewrite)")
+            with st.spinner("Rewriting narrative with LLM..."):
+                rewritten = rewrite_narrative_with_llm(output.narrative)
 
-elif run_button and not question:
-    st.warning("Please enter a question.")
+            if rewritten and rewritten.strip():
+                st.success(rewritten)
+            else:
+                st.info(deterministic_narrative(output.narrative))
