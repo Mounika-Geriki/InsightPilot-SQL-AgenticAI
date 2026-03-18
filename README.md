@@ -189,28 +189,30 @@ InsightPilot-SQL-AgenticAI
 │   └── assets
 │
 ├── data
-│   └── raw
+│   └── raw                ← Bronze Layer
 │
 ├── sql
-│   ├── bronze
-│   ├── silver
-│   └── gold
+│   ├── silver             ← Silver Layer
+│   └── gold               ← Gold Layer
 │
 ├── warehouse
+│   ├── init_db.py
+│   ├── run_sql.py
+│   └── insightpilot.duckdb
 │
 ├── evaluation
+│   ├── dq_checks.sql
+│   └── run_dq_checks.py
 │
 ├── tests
+│   └── test_agent.py
 │
+├── screenshots
 │
-├── .env.example
-├── .gitignore
-│
+├── agent_logs.json
 ├── METRICS.md
-├── README.md
-│
 ├── requirements.txt
-│
+├── README.md
 └── check.py
 
 ```
